@@ -1,0 +1,10 @@
+flask
+mysql-connector-python
+numpy
+pandas
+scipy
+scikit-learn
+scikit-build
+opencv-python
+
+
