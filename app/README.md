@@ -1,4 +1,4 @@
-#Dependencies
+# Dependencies
 
 - image_picker: ^0.6.7+22
 - dio: ^3.0.10
