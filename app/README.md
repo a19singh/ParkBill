@@ -16,10 +16,10 @@ Attach your physical device via USB and enable USB Debugging.
 
 Open terminal in the clonned repository
 
-`
-cd app
+```
+cd ./app
 flutter run
-`
+```
 
 ## Dependencies
 
