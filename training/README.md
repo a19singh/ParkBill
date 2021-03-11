@@ -1,3 +1,5 @@
+# Training 
+
 ## Dataset Collection
 
 The dataset is in the json format named [Indian_Number_plates.json](https://www.kaggle.com/dataturks/vehicle-number-plate-detection) available at Kaggle.com. This file contains links to the images of vehicles along with the coordinates of localization of number plates.
