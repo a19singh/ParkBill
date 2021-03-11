@@ -17,5 +17,5 @@ Using python script [Prepare_Dataset.py](./Prepare_Dataset.py) , these images ha
 
 After the completion of above steps model is ready to be trained. After the training the weights file can be obtained from the very folder where the images.zip file has been uploaded. The obtained **yolov3_training_final.weights** file will be used for testing and the deployment of the model.
 
-###Note:
+### Note:
 Due to the use of makefile a linux machine(Colab) will be the preferred choice to train the model as it is a bit complicated to create executable file on windows but [here](https://github.com/AlexeyAB/darknet#how-to-compile-on-windows-using-cmake) is the step to do so if someone wants to perform it on windows machine.
