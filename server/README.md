@@ -1,6 +1,6 @@
 # Server Side
 
-The system is implemented using Python and the model will be deployed on an AWS server for real time use scenario.
+The system is implemented using Python and the model will be deployed on an AWS EC2 instance for real time use scenario.
 
 The server side API is made with [flask](https://flask.palletsprojects.com/en/1.1.x/) and is deployed on WSGI server.
 
@@ -17,4 +17,4 @@ Using [OCR](./OCR.py) (Optical Character Recognition) method the model is succes
 
 ### Note:
 
-If you are not provided with the config file then do generate your own free apikey from [ocr.space](https://ocr.space/ocrapi) and comment the apikey import line(line no. 12) in [OCR](./OCR.py) file.
+If you are not provided with the config file then do generate your own free apikey from [ocr.space](https://ocr.space/ocrapi) and comment the apikey import line (line no. 12) in [OCR](./OCR.py) file.
