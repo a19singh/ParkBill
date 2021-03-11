@@ -107,7 +107,7 @@ def tableCreate():
         pass
 
 #Inserting data into database
-def dataEntry(a, s, e):
+def dataEntry(x, s, e):
 
 #    mydb = mysql.connector.connect(
 #            host = "127.0.0.1",
@@ -128,7 +128,7 @@ def dataEntry(a, s, e):
     mycursor = con.cursor()
 
 
-    mycursor.execute("INSERT INTO number(NUMBER, START, END) VALUES (?, ?, ?)", (a, s.strftime("%Y-%m-%d %H:%M:%S"), e.strftime("%Y-%m-%d %H:%M:%S")))
+    mycursor.execute("INSERT INTO number(NUMBER, START, END) VALUES (?, ?, ?)", (x, s.strftime("%Y-%m-%d %H:%M:%S"), e.strftime("%Y-%m-%d %H:%M:%S")))
 
     con.commit()
 
