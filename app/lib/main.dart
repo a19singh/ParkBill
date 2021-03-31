@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:path/path.dart';
-import 'package:http_parser/http_parser.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+
 import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
 
 void main() => runApp(MaterialApp(
       home: MyApp(),
@@ -30,6 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final picker = ImagePicker();
 
   TextEditingController _nameController = TextEditingController();
+//  static GlobalKey receipt = new GlobalKey();
 
   File file;
 
@@ -64,7 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     file = File(pickedFile.path);
     print("PickedFile");
-    //_upload();
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
@@ -76,8 +79,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _upload() {
     print('Inside _upload\n');
+    msg = '';
     String base64Image = base64Encode(file.readAsBytesSync());
-    print('Base64image:     ' + base64Image);
+    //print('Base64image:     ' + base64Image);
     uploadFile(base64Image);
   }
 
@@ -115,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
       print('parsed formData');
       //var uri = Uri.parse("http://127.0.0.1:5000");
       Response<Map> response = await Dio().post(
-        "http://ec2-34-207-90-136.compute-1.amazonaws.com:8080",
+        "http://ec2-100-26-194-76.compute-1.amazonaws.com:8080",
         data: formData,
       );
 
@@ -132,78 +136,221 @@ class _MyHomePageState extends State<MyHomePage> {
     } catch (e) {
       print("Exception : $e");
       setState(() {
-        msg = 'Some Error Occurred! Please Try again';
+//        msg = 'Some error occured';
         isLoading = false;
       });
+      _showDialog();
     }
+  }
+
+//  void _download() {
+//    _getWidgetImage().then((img) {
+//      final pdf = new PdfDocument();
+//      final page = new PdfPage(pdf,
+//          pageFormat:
+//              PdfPageFormat(75.0 * PdfPageFormat.MM, 100.0 * PdfPageFormat.MM));
+//      final g = page.getGraphics();
+//      final font = new PdfFont(pdf);
+//
+//      PdfImage image = new PdfImage(pdf,
+//          image: img.buffer.asUint8List(),
+//          width: img.width,
+//          height: img.height);
+//      g.drawImage(
+//          image, 100.0 * PdfPageFormat.MM, 0.0, 75.0 * PdfPageFormat.MM);
+//
+//      Printing.printPdf(document: pdf);
+//    });
+//  }
+
+//  void _download() {
+//    _getWidgetImage().then((img) {
+//      PdfDocument document = PdfDocument();
+//      document.pages
+//          .add()
+//          .graphics
+//          .drawImage(img, Rect.fromLTWH(0, 0, 100, 100));
+////      final directory = getExternalStorageDirectory();
+////      final path = directory.path;
+////
+////      File('$path/Output.pdf').writeAsBytes(document.save());
+//      File('Output.pdf').writeAsBytes(document.save());
+//    });
+//  }
+//
+//  Future _getWidgetImage() async {
+//    try {
+//      RenderRepaintBoundary boundary =
+//          receipt.currentContext.findRenderObject();
+//      ui.Image image = await boundary.toImage();
+//
+//      ByteData byteData =
+//          await image.toByteData(format: ui.ImageByteFormat.png);
+//      var pngBytes = byteData.buffer.asUint8List();
+//      var bs64 = base64Encode(pngBytes);
+//      debugPrint(bs64.length.toString());
+//      return pngBytes;
+//    } catch (exception) {
+//      print('Exception in widget image: $exception');
+//    }
+//  }
+  final pdf = pw.Document();
+  writeOnPdf() {
+    pdf.addPage(pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
+      margin: pw.EdgeInsets.all(32),
+      build: (pw.Context context) {
+        return <pw.Widget>[
+          pw.Header(
+              level: 0,
+              child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: <pw.Widget>[
+                    pw.Text('ParkBill Receipt', textScaleFactor: 2),
+                  ])),
+          pw.Header(level: 2, text: 'Receipt No.:'),
+          pw.Paragraph(text: responseJson["Receipt No."]),
+          pw.Header(level: 2, text: 'Reg No.:'),
+          pw.Paragraph(text: responseJson["Reg No."]),
+          pw.Header(level: 2, text: 'Start Time:'),
+          pw.Paragraph(text: responseJson["Start Time"]),
+          pw.Header(level: 2, text: 'End Time:'),
+          pw.Paragraph(text: responseJson["End Time"]),
+          pw.Padding(padding: const pw.EdgeInsets.all(10)),
+        ];
+      },
+    ));
+  }
+
+  Future savePdf() async {
+    DateTime _now = DateTime.now();
+    print(
+        'timestamp: ${_now.hour}:${_now.minute}:${_now.second}.${_now.millisecond}');
+    Directory documentDirectory = await getExternalStorageDirectory();
+    //Directory documentDirectory = await getApplicationSupportDirectory();
+    //final String dirPath = documentDirectory.path.toString().substring(0, 20);
+    //await Directory(dirPath).create(recursive: true);
+    String documentPath = documentDirectory.path;
+    File file = File(
+        "$documentPath/receipt${_now.year}_${_now.month}_${_now.day}_${_now.hour}_${_now.minute}.pdf");
+    String fullPath =
+        "$documentPath/receipt${_now.year}_${_now.month}_${_now.day}_${_now.hour}_${_now.minute}.pdf";
+    print(fullPath);
+    file.writeAsBytesSync(pdf.save());
+  }
+
+  void _showDialog() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Alert!"),
+          content: new Text("Something went wrong!\nPlease try again."),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                nul();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget data() {
     return Card(
         margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+        shadowColor: Colors.amberAccent,
+        elevation: 8,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                'Receipt No.: ',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                responseJson["Receipt No."],
-                style: TextStyle(
-                  fontSize: 18.0,
-                ),
-              ),
-              SizedBox(
-                height: 6.0,
-              ),
-              Text(
-                'Reg No.: ',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                responseJson["Reg No."],
-                style: TextStyle(
-                  fontSize: 18.0,
-                ),
-              ),
-              SizedBox(
-                height: 6.0,
-              ),
-              Text(
-                'Start Time: ',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                responseJson['Start Time'],
-                style: TextStyle(
-                  fontSize: 14.0,
-                ),
-              ),
-              SizedBox(
-                height: 6.0,
-              ),
-              Text(
-                'End Time: ',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                responseJson["End Time"],
-                style: TextStyle(
-                  fontSize: 14.0,
-                ),
-              ),
-            ],
-          ),
-        ));
+//                decoration: BoxDecoration(
+//                  gradient: LinearGradient(
+//                    colors: [Colors.white70, Colors.white30],
+//                    begin: Alignment.topCenter,
+//                    end: Alignment.bottomCenter,
+//                  ),
+//                ),
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Text(
+                    'Receipt No.: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    responseJson["Receipt No."],
+                    style: TextStyle(
+                      fontSize: 18.0,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 6.0,
+                  ),
+                  Text(
+                    'Reg No.: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    responseJson["Reg No."],
+                    style: TextStyle(
+                      fontSize: 18.0,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 6.0,
+                  ),
+                  Text(
+                    'Start Time: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    responseJson['Start Time'],
+                    style: TextStyle(
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 6.0,
+                  ),
+                  Text(
+                    'End Time: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    responseJson["End Time"],
+                    style: TextStyle(
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  ButtonBar(
+                    alignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      FlatButton.icon(
+                        icon: Icon(Icons.file_download),
+                        label: Text('Download'),
+                        onPressed: () {
+                          writeOnPdf();
+                          savePdf();
+                        },
+                      ),
+                    ],
+                  ),
+                ])));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[800],
+      resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         title: Text('ParkBill'),
         centerTitle: true,
@@ -306,12 +453,12 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           ),
-          msg == null
-              ? Text('')
-              : Text(msg,
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                  )),
+//          msg == null
+//              ? Text('')
+//              : Text(msg,
+//                  style: TextStyle(
+//                    color: Colors.redAccent,
+//                  )),
           //_finalres,
         ],
       ),
