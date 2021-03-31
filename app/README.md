@@ -1,16 +1,30 @@
-# cdac_project
 
-A new Flutter project.
+# Client Side Application
 
-## Getting Started
+This is the client side application that will be used to upload the image of the number plate to the backend server, making sure the number plate is clearly visible.
 
-This project is a starting point for a Flutter application.
+Along with the image upload a time period also needs to be entered so that reciept can be generated for that much specified time period from the current time.
 
-A few resources to get you started if this is your first Flutter project:
+## Requirements
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+- [Android Studio](https://developer.android.com/studio)
+- [Flutter](https://flutter.dev/docs/get-started/install)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Application Compilation
+
+Attach your physical device via USB and enable USB Debugging.
+
+Open terminal in the clonned repository
+
+```
+cd ./app
+flutter run
+```
+
+## Dependencies
+
+- image_picker: ^0.6.7+22
+- dio: ^3.0.10
+- path: ^1.7.0
+- http:
+
