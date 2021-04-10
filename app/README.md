@@ -25,6 +25,6 @@ flutter run
 
 - image_picker: ^0.6.7+22
 - dio: ^3.0.10
-- path: ^1.7.0
-- http:
-
+- path_provider: ^1.6.5
+- pdf: ^1.5.0
+- fluttertoast: ^4.0.0

@@ -28,6 +28,8 @@ dependencies:
   dio: ^3.0.10
   path_provider: ^1.6.5
   pdf: ^1.5.0
+  fluttertoast: ^4.0.0
+
 
 
   # The following adds the Cupertino Icons font to your application.

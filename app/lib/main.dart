@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
@@ -31,11 +32,13 @@ class _MyHomePageState extends State<MyHomePage> {
   File _image;
 
   final picker = ImagePicker();
+  final ip = 'ec2-34-226-153-146.compute-1.amazonaws.com';
 
   TextEditingController _nameController = TextEditingController();
 //  static GlobalKey receipt = new GlobalKey();
 
   File file;
+  var err;
 
   Future getImage() async {
     final pickedFile = await picker.getImage(
@@ -80,9 +83,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void _upload() {
     print('Inside _upload\n');
     msg = '';
-    String base64Image = base64Encode(file.readAsBytesSync());
-    //print('Base64image:     ' + base64Image);
-    uploadFile(base64Image);
+    try {
+      String base64Image = base64Encode(file.readAsBytesSync());
+      //print('Base64image:     ' + base64Image);
+      uploadFile(base64Image);
+    } catch (e) {
+      err = 'Image not Selected';
+      _showDialog(err);
+    }
   }
 
   Map responseJson;
@@ -119,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
       print('parsed formData');
       //var uri = Uri.parse("http://127.0.0.1:5000");
       Response<Map> response = await Dio().post(
-        "http://ec2-100-26-194-76.compute-1.amazonaws.com:8080",
+        "http://$ip:8080",
         data: formData,
       );
 
@@ -139,7 +147,8 @@ class _MyHomePageState extends State<MyHomePage> {
 //        msg = 'Some error occured';
         isLoading = false;
       });
-      _showDialog();
+      err = 'Something went wrong!\nPlease try again.';
+      _showDialog(err);
     }
   }
 
@@ -239,15 +248,28 @@ class _MyHomePageState extends State<MyHomePage> {
     file.writeAsBytesSync(pdf.save());
   }
 
-  void _showDialog() {
+  void _showDialog(err_msg) {
     // flutter defined function
     showDialog(
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Alert!"),
-          content: new Text("Something went wrong!\nPlease try again."),
+          title: new Text(
+            "Alert!",
+            textAlign: TextAlign.center,
+          ),
+          content: Container(
+            decoration: new BoxDecoration(
+                shape: BoxShape.rectangle,
+                borderRadius: new BorderRadius.all(new Radius.circular(64.0))),
+            child: new Text(
+              err_msg,
+              textAlign: TextAlign.left,
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
@@ -339,6 +361,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         onPressed: () {
                           writeOnPdf();
                           savePdf();
+                          Fluttertoast.showToast(
+                              msg: "Downloaded",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.white70,
+                              textColor: Colors.black,
+                              fontSize: 16.0);
                         },
                       ),
                     ],
