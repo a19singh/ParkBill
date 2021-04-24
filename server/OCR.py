@@ -14,10 +14,13 @@ from config import apikey ## comment this if using "apikey" variable in this fil
 
 def get_number(image):
     #image = cv2.imread('crop.jpg')
-    
+
+    #Image saturation
+    ret, thresh1 = cv2.threshold(image, 120, 255, cv2.ADAPTIVE_THRESH_MEAN_C)
+
     #OCR space api used to extract number plate
     api = 'https://api.ocr.space/parse/image'
-    _, compress_img = cv2.imencode('.jpg', image)
+    _, compress_img = cv2.imencode('.jpg', thresh1)
     
     #convert image into bytes
     file_byte = io.BytesIO(compress_img)
